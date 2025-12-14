@@ -4,7 +4,20 @@ This section focuses on the **JOIN Algorithm Principles**—how the database int
 
 We will use specific table data to simulate the steps involved in executing these three main algorithms.
 
-### Data Preparation
+## Table of Contents
+
+- [Data Preparation](#data-preparation)
+- [1. Nested Loop Join](#1-nested-loop-join)
+- [2. Merge Join](#2-merge-join)
+  - [Step 1: Sort Phase](#step-1)
+  - [Step 2: Merge Phase](#step-2)
+- [3. Hash Join](#3-hash-join)
+  - [Step 1: Build Phase](#step-1-1)
+  - [Step 2: Probe Phase](#step-2-1)
+
+---
+
+### Data Preparation {#data-preparation}
 
 We are joining the **Customers** table and the **Orders** table to find the details of each customer's orders.
 
@@ -44,7 +57,7 @@ ON T1.Customer_ID = T2.Customer_ID;
 
 ---
 
-### 1. Nested Loop Join
+### 1. Nested Loop Join {#1-nested-loop-join}
 
 **Principle**: Take each row from the left table and **sequentially scan** the entire right table to find a match. This is the most straightforward, yet often the least efficient, method.
 
@@ -59,11 +72,11 @@ ON T1.Customer_ID = T2.Customer_ID;
 
 **Summary**: If the left table has M rows and the right table has N rows, the total scan count is approximately M \times N times. **Note**: If the join key on the N table has an **index**, the inner loop can locate matches quickly, significantly improving efficiency.
 
-### 2. Merge Join
+### 2. Merge Join {#2-merge-join}
 
 **Principle**: First, **sort** both tables based on the join key (Merge Phase), and then execute a simultaneous, parallel scan (Merge Phase), completing the match in a single pass.
 
-#### Step 1:
+#### Step 1: {#step-1}
 
 Sort PhaseThe database must first sort both tables by `Customer_ID`.
 
@@ -89,7 +102,7 @@ Sort PhaseThe database must first sort both tables by `Customer_ID`.
 | O02      | **C104**                  | Phone    |
 | O05      | **C104**                  | Tablet   |
 
-#### Step 2:
+#### Step 2: {#step-2}
 
 Merge PhaseThe database uses two pointers, starting from the beginning of both tables, moving **simultaneously downwards**.
 
@@ -105,11 +118,11 @@ Merge PhaseThe database uses two pointers, starting from the beginning of both t
 
 **Summary**: Sorting takes time, but once sorted, only M+N scans are needed for the merge. This method is generally faster than Nested Loop Join when both tables are large and **lack indexes/pre-sorting**.
 
-### 3. Hash Join
+### 3. Hash Join {#3-hash-join}
 
 **Principle**: The smaller table (Build Table) is loaded into memory to create a **Hash Table**. The larger table (Probe Table) is then scanned, and its keys are used to probe the Hash Table in memory.
 
-#### Step 1:
+#### Step 1: {#step-1-1}
 
 Build PhaseWe select the smaller **Customers** table to build a Hash Table in memory.
 
@@ -121,7 +134,7 @@ Build PhaseWe select the smaller **Customers** table to build a Hash Table in me
 | C104        | HASH(C104)                         | (C104, Xiao Gang) |
 | C102        | HASH(C102)                         | (C102, Xiao Li)   |
 
-#### Step 2:
+#### Step 2: {#step-2-1}
 
 Probe PhaseScan the larger **Orders** table row by row, calculate the hash value of its `Customer_ID`, and look up the match in the in-memory Hash Table.
 
